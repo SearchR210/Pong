@@ -1,4 +1,5 @@
 from pygame import *
+from time import time as timer
 
 win_x = 500
 win_y = 500
@@ -10,9 +11,9 @@ FPS = 60
 speed_x = 3
 speed_y = 3
 font.init()
-font1 = font.Font(None, 80)
-win = font1.render('YOU WIN!', True, (255, 255, 255))
-lose = font1.render('YOU LOSE!', True, (180, 0, 0))
+font1 = font.Font(None, 40)
+lose1 = font1.render('PLAYER 1 LOSE!', True, (0, 0, 0))
+lose2 = font1.render('PLAYER 2 LOSE!', True, (0, 0, 0))
 
 font2 = font.Font(None, 36)
 
@@ -45,12 +46,14 @@ class Player(GameSprite):
 
 
 ball = GameSprite('ball.png', 225, 225, 4, 50, 50)
-racket_r = Player('ball.png', 30, 200, 4, 50, 150)
-racket_l = Player('ball.png', 200, 200, 4, 50, 150)
+racket_r = Player('racket.png', 30, 200, 4, 50, 150)
+racket_l = Player('racket.png', 420, 200, 4, 50, 150)
+start_time = timer()
 
 run = True
 finish = False
 while run:
+    new_time = timer()
     for e in event.get():
         if e.type == QUIT:
             run = False
@@ -58,15 +61,26 @@ while run:
         window.fill(col1)
         racket_l.update_l()
         racket_r.update_r()
-        ball.rect.x += speed_x
-        ball.rect.y += speed_y
+        if float(new_time - start_time) > 1.5:
+            ball.rect.x += speed_x
+            ball.rect.y += speed_y
 
         if sprite.collide_rect(racket_r, ball) or sprite.collide_rect(racket_l, ball):
             speed_x *= -1
             speed_y *= 1
 
-        if ball.rect.y > win_y - 50 or ball.rect.x < 0:
+        if ball.rect.y > win_y - 50 or ball.rect.y < 0:
             speed_y *= -1
+
+        if ball.rect.x < 0:
+            finish = True
+            window.blit(lose1, (200, 200))
+            game_over = True
+
+        if ball.rect.x > win_x:
+            finish = True
+            window.blit(lose2, (200, 200))
+            game_over = True
 
         ball.reset()
         racket_r.reset()
@@ -75,3 +89,4 @@ while run:
     clock.tick(FPS)
 
 display.update()
+
